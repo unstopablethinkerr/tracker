@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, Arial, sans-serif;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.x { display: none; }
+
+#gate {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+#gate input {
+  margin-top: 14px;
+}
+
+#barTop {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
+  padding: 10px;
+  z-index: 9;
+}
+
+#meterBox {
+  height: 10px;
+  background: #1e293b;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#meter {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+}
+
+#stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+#main {
+  padding: 110px 14px 80px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.grp {
+  margin-bottom: 30px;
+}
+
+.grp h2 {
+  color: #38bdf8;
+  margin-bottom: 10px;
+  font-size: 17px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+button {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #334155;
+}
+
+#barBottom {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #020617;
+  border-top: 1px solid #1e293b;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <h2>Configuration Required</h2>
+  <p>Load data file to continue</p>
+  <input type="file" id="f" accept=".csv">
+</div>
+
+<!-- TOP BAR -->
+<div id="barTop" class="x">
+  <div id="meterBox"><div id="meter"></div></div>
+  <div id="stats">
+    <span>Session: <b id="s0">0</b></span>
+    <span>Stage: <b id="s1">0</b></span>
+    <span id="clk"></span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div id="main" class="x"></div>
+
+<!-- BOTTOM BAR -->
+<div id="barBottom" class="x">
+  <span>Status: active</span>
+  <button onclick="sh()">Copy Link</button>
+</div>
+
+<script>
+const _K = "xdata";
+const _M = 325;
+
+function _d() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function _r() {
+  const m = document.cookie.match(new RegExp(_K + "=([^;]+)"));
+  return m ? JSON.parse(decodeURIComponent(m[1])) : null;
+}
+
+function _w(o) {
+  document.cookie = _K + "=" + encodeURIComponent(JSON.stringify(o)) +
+    ";max-age=31536000;path=/";
+}
+
+function _c(t) {
+  const l = t.trim().split("\n").slice(1);
+  const g = {};
+  l.forEach(r => {
+    const a = r.split(",");
+    if (a[0] !== "TASK") return;
+    const k = a[1] || "X";
+    if (!g[k]) g[k] = [];
+    g[k].push({ n: a[2], v: +a[3] });
+  });
+  return g;
+}
+
+function _i(o) {
+  document.getElementById("gate").classList.add("x");
+  document.getElementById("barTop").classList.remove("x");
+  document.getElementById("main").classList.remove("x");
+  document.getElementById("barBottom").classList.remove("x");
+
+  const m = document.getElementById("main");
+  m.innerHTML = "";
+
+  for (const k in o.g) {
+    const s = document.createElement("div");
+    s.className = "grp";
+    s.innerHTML = `<h2>${k}</h2><div class="grid"></div>`;
+    o.g[k].forEach(z => {
+      const b = document.createElement("button");
+      b.textContent = z.n + " (+" + z.v + ")";
+      b.onclick = () => _a(z.v);
+      s.querySelector(".grid").appendChild(b);
+    });
+    m.appendChild(s);
+  }
+
+  _u(o);
+}
+
+function _a(v) {
+  let o = _r();
+  o.s += v;
+  o.t += v;
+
+  if (o.s >= _M) {
+    o.l++;
+    o.s -= _M;
+  }
+
+  _w(o);
+  _u(o);
+}
+
+function _u(o) {
+  document.getElementById("s0").textContent = o.s;
+  document.getElementById("s1").textContent = o.l;
+  document.getElementById("meter").style.width =
+    Math.min(o.s / _M * 100, 100) + "%";
+}
+
+function _t() {
+  document.getElementById("clk").textContent =
+    new Date().toLocaleString();
+}
+
+function sh() {
+  const u = location.href;
+  navigator.share ? navigator.share({ url: u }) : navigator.clipboard.writeText(u);
+}
+
+document.getElementById("f").addEventListener("change", e => {
+  const file = e.target.files[0];
+  const rd = new FileReader();
+  rd.onload = () => {
+    const g = _c(rd.result);
+    const o = { g, s: 0, t: 0, l: 0, d: _d() };
+    _w(o);
+    _i(o);
+  };
+  rd.readAsText(file);
+});
+
+setInterval(_t, 1000);
+_t();
+
+let o = _r();
+if (o) {
+  if (o.d !== _d()) {
+    o.s = 0;
+    o.d = _d();
+    _w(o);
+  }
+  _i(o);
+}
+</script>
+
+</body>
+</html>
