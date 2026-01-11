@@ -1,306 +1,560 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Tracker</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    :root {
+        --bg: #0a0a1a;
+        --card: #1a1a2e;
+        --card-hover: #16213e;
+        --accent: #4cc9f0;
+        --accent-green: #4caf50;
+        --accent-gold: #ffc107;
+        --text: #e0e0e0;
+        --text-muted: #a0a0a0;
+        --border: #2a2a3e;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --radius: 12px;
+        --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<style>
-:root{
-  --bg:#020617;
-  --card:#0f172a;
-  --card2:#020617;
-  --accent:#22c55e;
-  --accent2:#38bdf8;
-  --done:#64748b;
-}
+    body {
+        margin: 0;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        padding-bottom: 100px;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
 
-body{
-  margin:0;
-  font-family:system-ui,Arial,sans-serif;
-  background:var(--bg);
-  color:#e5e7eb;
-  padding-bottom:env(safe-area-inset-bottom);
-}
+    .h {
+        display: none;
+    }
 
-.h{display:none}
+    #top {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 15px 20px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-sizing: border-box;
+    }
 
-/* GATE */
-#gate{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
-#gate input{margin-top:16px}
+    #meterBox {
+        height: 8px;
+        background: var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 5px;
+        width: 100%;
+    }
 
-/* TOP BAR */
-#top{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:var(--bg);
-  border-bottom:1px solid #1e293b;
-  padding:14px 16px;
-  z-index:10;
-}
-#meterBox{
-  height:12px;
-  background:#1e293b;
-  border-radius:10px;
-  overflow:hidden;
-}
-#meter{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#22c55e,#4ade80);
-  transition:width .4s;
-}
-#stats{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  margin-top:8px;
-}
+    #meter {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent-green), var(--accent-gold));
+        transition: width 0.4s ease;
+        max-width: 100%;
+    }
 
-/* CONTENT */
-#main{
-  padding:140px 16px 140px;
-  max-width:900px;
-  margin:auto;
-}
-.grp{margin-bottom:36px}
-.grp h2{
-  margin-bottom:12px;
-  color:var(--accent2);
-}
+    #stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: var(--text-muted);
+        padding: 0 5px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
 
-/* TASK CARDS */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-  gap:12px;
-}
-.card{
-  background:var(--card);
-  border-radius:14px;
-  padding:14px;
-  cursor:pointer;
-  transition:.25s;
-  border:1px solid #1e293b;
-}
-.card:hover{transform:scale(1.02)}
-.card.done{
-  opacity:.45;
-  background:var(--card2);
-  cursor:default;
-}
-.card .t{font-size:14px}
-.card .v{
-  font-size:13px;
-  margin-top:6px;
-  color:#a7f3d0;
-}
+    #stats span {
+        white-space: nowrap;
+    }
 
-/* REWARD BAR */
-#rewardBar{
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-  padding:10px 0;
-}
-.reward{
-  min-width:120px;
-  background:#1e293b;
-  border-radius:12px;
-  padding:10px;
-  text-align:center;
-  font-size:12px;
-  opacity:.4;
-}
-.reward.on{
-  background:linear-gradient(135deg,#22c55e,#4ade80);
-  color:#022c22;
-  opacity:1;
-}
+    #main {
+        padding: 120px 20px 120px;
+        max-width: 900px;
+        margin: auto;
+        box-sizing: border-box;
+        width: 100%;
+    }
 
-/* BOTTOM BAR */
-#bottom{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:var(--bg);
-  border-top:1px solid #1e293b;
-  padding:12px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:12px;
-}
-button{
-  background:#38bdf8;
-  border:none;
-  border-radius:10px;
-  padding:8px 12px;
-  font-size:12px;
-  cursor:pointer;
-}
+    .grp {
+        margin-bottom: 30px;
+    }
+
+    .grp h2 {
+        color: var(--accent-gold);
+        margin-bottom: 15px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+    }
+
+    .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        background: var(--card-hover);
+    }
+
+    .card.done {
+        opacity: 0.8;
+        background: var(--card);
+        cursor: pointer;
+        box-shadow: none;
+        border: 1px solid var(--accent-green);
+    }
+
+    .card.done::after {
+        content: "✔";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: var(--accent-green);
+        font-size: 18px;
+    }
+
+    .card .t {
+        font-size: 15px;
+        margin-bottom: 5px;
+        font-weight: 500;
+        word-wrap: break-word;
+    }
+
+    .card .v {
+        font-size: 13px;
+        color: var(--accent-gold);
+        font-weight: bold;
+    }
+
+    #rewardBar {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 15px 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        box-sizing: border-box;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #rewardBar::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    #rewardBar::-webkit-scrollbar-track {
+        background: var(--border);
+    }
+
+    #rewardBar::-webkit-scrollbar-thumb {
+        background: var(--accent-gold);
+        border-radius: 2px;
+    }
+
+    .reward {
+        min-width: 130px;
+        background: var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+
+    .reward.on {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-gold));
+        color: var(--bg);
+        font-weight: bold;
+        transform: scale(1.05);
+    }
+
+    #fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-gold));
+        border: none;
+        border-radius: 50%;
+        width: 55px;
+        height: 55px;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    #fab:hover {
+        transform: scale(1.1);
+    }
+
+    #clk {
+        font-size: 13px;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 5px;
+        padding: 0 10px;
+    }
+
+    #quote {
+        text-align: center;
+        font-style: italic;
+        color: var(--accent-gold);
+        margin: 20px 0;
+        font-size: 16px;
+        padding: 0 15px;
+        box-sizing: border-box;
+    }
+
+    #config {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 10px 15px;
+        color: var(--text);
+        cursor: pointer;
+        box-shadow: var(--shadow);
+        z-index: 1000;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    #config:hover {
+        background: var(--card-hover);
+    }
+
+    #config::before {
+        content: "🔄";
+        font-size: 16px;
+    }
+
+    #fileInput {
+        display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        #main {
+            padding: 110px 15px 120px;
+        }
+        
+        #top {
+            padding: 12px 15px;
+        }
+        
+        .grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        
+        .card {
+            padding: 12px;
+        }
+        
+        .card .t {
+            font-size: 14px;
+        }
+        
+        #stats {
+            font-size: 12px;
+        }
+        
+        #fab {
+            width: 50px;
+            height: 50px;
+            bottom: 15px;
+            right: 15px;
+        }
+        
+        #config {
+            bottom: 15px;
+            left: 15px;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #main {
+            padding: 100px 10px 120px;
+        }
+        
+        .grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .reward {
+            min-width: 110px;
+            padding: 10px;
+            font-size: 12px;
+        }
+        
+        #stats {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+    }
 </style>
 </head>
-
 <body>
+    <!-- Top Bar -->
+    <div id="top">
+        <div id="meterBox"><div id="meter"></div></div>
+        <div id="stats">
+            <span>Points: <b id="s0">0</b></span>
+            <span style="margin-right: 20px;">Level: <b id="s1">0</b></span>
+        </div>
+        <div id="clk"></div>
+    </div>
 
-<!-- GATE -->
-<div id="gate">
-  <h2>Configuration Required</h2>
-  <p>Load data file to continue</p>
-  <input type="file" id="f" accept=".csv">
-</div>
+    <!-- Main Content -->
+    <div id="main">
+        <div id="quote">"Small daily improvements lead to stunning results."</div>
+    </div>
 
-<!-- TOP -->
-<div id="top" class="h">
-  <div id="meterBox"><div id="meter"></div></div>
-  <div id="stats">
-    <span>Session: <b id="s0">0</b></span>
-    <span>Stage: <b id="s1">0</b></span>
-    <span id="clk"></span>
-  </div>
-</div>
+    <!-- Floating Action Button -->
+    <button id="fab" onclick="sh()" title="Share">🔗</button>
 
-<!-- MAIN -->
-<div id="main" class="h"></div>
+    <!-- Change Configuration Button -->
+    <button id="config">Change Configuration</button>
+    <input type="file" id="fileInput" accept=".csv">
 
-<!-- BOTTOM -->
-<div id="bottom" class="h">
-  <span>Status: active</span>
-  <button onclick="sh()">Copy Link</button>
-</div>
+    <script>
+        const STORAGE_KEY = "dailyTrackerData";
+        const LEVEL_THRESHOLD = 100;
+        const $ = (id) => document.getElementById(id);
+        const today = () => new Date().toISOString().split("T")[0];
 
-<script>
-const K="xdata",L=325;
+        function save(o) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+        }
 
-const $=id=>document.getElementById(id);
-const today=()=>new Date().toISOString().split("T")[0];
+        function load() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : null;
+        }
 
-function save(o){
-  document.cookie=K+"="+encodeURIComponent(JSON.stringify(o))+";max-age=31536000;path=/";
-}
-function load(){
-  const m=document.cookie.match(new RegExp(K+"=([^;]+)"));
-  return m?JSON.parse(decodeURIComponent(m[1])):null;
-}
+        function parseCSV(t) {
+            t = t.replace(/^\uFEFF/, "").trim();
+            const lines = t.split(/\r?\n/).slice(1);
+            const groups = {};
+            const rewards = [];
 
-function parseCSV(t){
-  const l=t.trim().split("\n").slice(1);
-  const g={},r=[];
-  l.forEach(x=>{
-    const a=x.split(",");
-    if(a[0]==="TASK"){
-      if(!g[a[1]])g[a[1]]=[];
-      g[a[1]].push({n:a[2],v:+a[3]});
-    }
-    if(a[0]==="REWARD") r.push({n:a[2],v:+a[3]});
-  });
-  return {g,r};
-}
+            lines.forEach((line) => {
+                if (!line.trim()) return;
+                const [type, category, name, value] = line.split(",").map((x) => x.trim());
+                if (type === "TASK" && category && name && value) {
+                    if (!groups[category]) groups[category] = [];
+                    groups[category].push({ n: name, v: Number(value) });
+                } else if (type === "REWARD" && name && value) {
+                    rewards.push({ n: name, v: Number(value) });
+                }
+            });
 
-function init(o){
-  gate.classList.add("h");
-  top.classList.remove("h");
-  main.classList.remove("h");
-  bottom.classList.remove("h");
+            return { g: groups, r: rewards };
+        }
 
-  main.innerHTML="";
-  buildRewards(o);
+        function init(o) {
+            if (!o || !o.g || !o.r) {
+                console.error("Invalid data structure:", o);
+                alert("Invalid data. Check console for details.");
+                return;
+            }
 
-  for(const k in o.g){
-    const sec=document.createElement("div");
-    sec.className="grp";
-    sec.innerHTML=`<h2>${k}</h2><div class="grid"></div>`;
-    renderTasks(o,k,sec.querySelector(".grid"));
-    main.appendChild(sec);
-  }
+            $("main").innerHTML = '<div id="quote">"Small daily improvements lead to stunning results."</div>';
+            buildRewards(o);
 
-  update(o);
-  setTimeout(()=>main.scrollIntoView({behavior:"smooth"}),300);
-}
+            for (const category in o.g) {
+                const section = document.createElement("div");
+                section.className = "grp";
+                section.innerHTML = `<h2>${category}</h2><div class="grid"></div>`;
+                renderTasks(o, category, section.querySelector(".grid"));
+                $("main").appendChild(section);
+            }
 
-function renderTasks(o,k,grid){
-  grid.innerHTML="";
-  const done=o.c[today()]||[];
-  const list=o.g[k].map(t=>({
-    ...t,
-    d:done.includes(t.n)
-  })).sort((a,b)=>a.d-b.d);
+            update(o);
+            setTimeout(() => $("main").scrollIntoView({ behavior: "smooth" }), 300);
+        }
 
-  list.forEach(t=>{
-    const c=document.createElement("div");
-    c.className="card"+(t.d?" done":"");
-    c.innerHTML=`<div class="t">${t.d?"✔ ":""}${t.n}</div><div class="v">+${t.v}</div>`;
-    if(!t.d){
-      c.onclick=()=>complete(o,t.n,t.v);
-    }
-    grid.appendChild(c);
-  });
-}
+        function renderTasks(o, category, grid) {
+            grid.innerHTML = "";
+            const done = o.c[today()] || [];
+            const tasks = o.g[category]
+                .map((task) => ({
+                    ...task,
+                    d: done.includes(task.n),
+                }))
+                .sort((a, b) => (a.d ? 1 : -1));
 
-function complete(o,n,v){
-  const d=today();
-  if(!o.c[d])o.c[d]=[];
-  if(o.c[d].includes(n))return;
+            tasks.forEach((task) => {
+                const card = document.createElement("div");
+                card.className = `card${task.d ? " done" : ""}`;
+                card.innerHTML = `<div class="t">${task.n}</div><div class="v">${task.d ? "-" : "+"}${task.v}</div>`;
+                card.onclick = () => task.d ? revoke(o, task.n, task.v) : complete(o, task.n, task.v);
+                grid.appendChild(card);
+            });
+        }
 
-  o.c[d].push(n);
-  o.s+=v; o.t+=v;
-  if(o.s>=L){o.l++;o.s-=L}
-  save(o);
-  init(o);
-}
+        function complete(o, name, value) {
+            const day = today();
+            if (!o.c[day]) o.c[day] = [];
+            if (o.c[day].includes(name)) return;
 
-function buildRewards(o){
-  const box=document.createElement("div");
-  box.id="rewardBar";
-  o.r.forEach(x=>{
-    const d=document.createElement("div");
-    d.className="reward"+(o.s>=x.v?" on":"");
-    d.textContent=x.n+" ("+x.v+")";
-    box.appendChild(d);
-  });
-  main.appendChild(box);
-}
+            o.c[day].push(name);
+            o.s += value;
+            o.t += value;
+            if (o.s >= LEVEL_THRESHOLD) {
+                o.l++;
+                o.s -= LEVEL_THRESHOLD;
+                alert(`🎉 Level ${o.l} unlocked! Keep going!`);
+            }
+            save(o);
+            init(o);
+        }
 
-function update(o){
-  s0.textContent=o.s;
-  s1.textContent=o.l;
-  meter.style.width=Math.min(o.s/L*100,100)+"%";
-}
+        function revoke(o, name, value) {
+            if (!confirm(`Are you sure you want to revoke "${name}"? You will lose ${value} points.`)) return;
 
-function tick(){
-  clk.textContent=new Date().toLocaleString();
-}
-setInterval(tick,1000);tick();
+            const day = today();
+            if (!o.c[day] || !o.c[day].includes(name)) return;
 
-function sh(){
-  navigator.share?navigator.share({url:location.href}):navigator.clipboard.writeText(location.href);
-}
+            o.c[day] = o.c[day].filter((task) => task !== name);
+            o.s -= value;
+            save(o);
+            init(o);
+        }
 
-f.onchange=e=>{
-  const rd=new FileReader();
-  rd.onload=()=>{
-    const c=parseCSV(rd.result);
-    const o={...c,s:0,t:0,l:0,c:{},d:today()};
-    save(o);init(o);
-  };
-  rd.readAsText(e.target.files[0]);
-};
+        function buildRewards(o) {
+            const bar = document.createElement("div");
+            bar.id = "rewardBar";
+            o.r.forEach((reward) => {
+                const item = document.createElement("div");
+                item.className = `reward${o.s >= reward.v ? " on" : ""}`;
+                item.textContent = `${reward.n} (${reward.v})`;
+                item.onclick = () => {
+                    if (o.s >= reward.v) {
+                        if (confirm(`🎁 Claim "${reward.n}" for ${reward.v} points?`)) {
+                            o.s -= reward.v;
+                            save(o);
+                            init(o);
+                            alert(`🎉 Enjoy your reward: ${reward.n}!`);
+                        }
+                    } else {
+                        alert(`🔒 You need ${reward.v - o.s} more points to unlock this!`);
+                    }
+                };
+                bar.appendChild(item);
+            });
+            $("main").prepend(bar);
+        }
 
-let o=load();
-if(o){
-  if(o.d!==today()){o.c={};o.s=0;o.d=today();save(o)}
-  init(o);
-}
-</script>
+        function update(o) {
+            $("s0").textContent = o.s;
+            $("s1").textContent = o.l;
+            $("meter").style.width = `${Math.min((o.s / LEVEL_THRESHOLD) * 100, 100)}%`;
+        }
 
+        function tick() {
+            const now = new Date();
+            const options = {
+                timeZone: "Asia/Kolkata",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+            };
+            $("clk").textContent = now.toLocaleString("en-IN", options);
+        }
+        setInterval(tick, 1000);
+        tick();
+
+        function sh() {
+            if (navigator.share) {
+                navigator.share({ url: location.href, title: "Tracker", text: "Track your progress!" });
+            } else {
+                navigator.clipboard.writeText(location.href);
+                alert("Link copied to clipboard!");
+            }
+        }
+
+        document.getElementById("config").onclick = () => {
+            document.getElementById("fileInput").click();
+        };
+
+        document.getElementById("fileInput").onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const parsed = parseCSV(reader.result);
+                    if (!parsed.g || !parsed.r) {
+                        throw new Error("Invalid CSV format.");
+                    }
+                    const data = { ...parsed, s: 0, t: 0, l: 0, c: {}, d: today() };
+                    save(data);
+                    init(data);
+                } catch (error) {
+                    console.error("Error parsing CSV:", error);
+                    alert(`Failed to parse CSV: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        const data = load();
+        if (data) {
+            if (data.d !== today()) {
+                data.c = {};
+                data.s = 0;
+                data.d = today();
+                save(data);
+            }
+            init(data);
+        }
+    </script>
 </body>
 </html>
