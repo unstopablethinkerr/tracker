@@ -6,104 +6,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  margin: 0;
-  font-family: system-ui, Arial, sans-serif;
-  background: #020617;
-  color: #e5e7eb;
+:root{
+  --bg:#020617;
+  --card:#0f172a;
+  --card2:#020617;
+  --accent:#22c55e;
+  --accent2:#38bdf8;
+  --done:#64748b;
 }
 
-.x { display: none; }
-
-#gate {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+body{
+  margin:0;
+  font-family:system-ui,Arial,sans-serif;
+  background:var(--bg);
+  color:#e5e7eb;
+  padding-bottom:env(safe-area-inset-bottom);
 }
 
-#gate input {
-  margin-top: 14px;
+.h{display:none}
+
+/* GATE */
+#gate{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+#gate input{margin-top:16px}
+
+/* TOP BAR */
+#top{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:var(--bg);
+  border-bottom:1px solid #1e293b;
+  padding:14px 16px;
+  z-index:10;
+}
+#meterBox{
+  height:12px;
+  background:#1e293b;
+  border-radius:10px;
+  overflow:hidden;
+}
+#meter{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#22c55e,#4ade80);
+  transition:width .4s;
+}
+#stats{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-top:8px;
 }
 
-#barTop {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #020617;
-  border-bottom: 1px solid #1e293b;
-  padding: 10px;
-  z-index: 9;
+/* CONTENT */
+#main{
+  padding:140px 16px 140px;
+  max-width:900px;
+  margin:auto;
+}
+.grp{margin-bottom:36px}
+.grp h2{
+  margin-bottom:12px;
+  color:var(--accent2);
 }
 
-#meterBox {
-  height: 10px;
-  background: #1e293b;
-  border-radius: 6px;
-  overflow: hidden;
+/* TASK CARDS */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:12px;
+}
+.card{
+  background:var(--card);
+  border-radius:14px;
+  padding:14px;
+  cursor:pointer;
+  transition:.25s;
+  border:1px solid #1e293b;
+}
+.card:hover{transform:scale(1.02)}
+.card.done{
+  opacity:.45;
+  background:var(--card2);
+  cursor:default;
+}
+.card .t{font-size:14px}
+.card .v{
+  font-size:13px;
+  margin-top:6px;
+  color:#a7f3d0;
 }
 
-#meter {
-  height: 100%;
-  width: 0%;
-  background: #22c55e;
+/* REWARD BAR */
+#rewardBar{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:10px 0;
+}
+.reward{
+  min-width:120px;
+  background:#1e293b;
+  border-radius:12px;
+  padding:10px;
+  text-align:center;
+  font-size:12px;
+  opacity:.4;
+}
+.reward.on{
+  background:linear-gradient(135deg,#22c55e,#4ade80);
+  color:#022c22;
+  opacity:1;
 }
 
-#stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-top: 6px;
+/* BOTTOM BAR */
+#bottom{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:var(--bg);
+  border-top:1px solid #1e293b;
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:12px;
 }
-
-#main {
-  padding: 110px 14px 80px;
-  max-width: 900px;
-  margin: auto;
-}
-
-.grp {
-  margin-bottom: 30px;
-}
-
-.grp h2 {
-  color: #38bdf8;
-  margin-bottom: 10px;
-  font-size: 17px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-}
-
-button {
-  background: #1e293b;
-  color: #e5e7eb;
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #334155;
-}
-
-#barBottom {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #020617;
-  border-top: 1px solid #1e293b;
-  padding: 8px 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
+button{
+  background:#38bdf8;
+  border:none;
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:12px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -117,8 +159,8 @@ button:hover {
   <input type="file" id="f" accept=".csv">
 </div>
 
-<!-- TOP BAR -->
-<div id="barTop" class="x">
+<!-- TOP -->
+<div id="top" class="h">
   <div id="meterBox"><div id="meter"></div></div>
   <div id="stats">
     <span>Session: <b id="s0">0</b></span>
@@ -127,125 +169,136 @@ button:hover {
   </div>
 </div>
 
-<!-- CONTENT -->
-<div id="main" class="x"></div>
+<!-- MAIN -->
+<div id="main" class="h"></div>
 
-<!-- BOTTOM BAR -->
-<div id="barBottom" class="x">
+<!-- BOTTOM -->
+<div id="bottom" class="h">
   <span>Status: active</span>
   <button onclick="sh()">Copy Link</button>
 </div>
 
 <script>
-const _K = "xdata";
-const _M = 325;
+const K="xdata",L=325;
 
-function _d() {
-  return new Date().toISOString().split("T")[0];
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().split("T")[0];
+
+function save(o){
+  document.cookie=K+"="+encodeURIComponent(JSON.stringify(o))+";max-age=31536000;path=/";
+}
+function load(){
+  const m=document.cookie.match(new RegExp(K+"=([^;]+)"));
+  return m?JSON.parse(decodeURIComponent(m[1])):null;
 }
 
-function _r() {
-  const m = document.cookie.match(new RegExp(_K + "=([^;]+)"));
-  return m ? JSON.parse(decodeURIComponent(m[1])) : null;
-}
-
-function _w(o) {
-  document.cookie = _K + "=" + encodeURIComponent(JSON.stringify(o)) +
-    ";max-age=31536000;path=/";
-}
-
-function _c(t) {
-  const l = t.trim().split("\n").slice(1);
-  const g = {};
-  l.forEach(r => {
-    const a = r.split(",");
-    if (a[0] !== "TASK") return;
-    const k = a[1] || "X";
-    if (!g[k]) g[k] = [];
-    g[k].push({ n: a[2], v: +a[3] });
+function parseCSV(t){
+  const l=t.trim().split("\n").slice(1);
+  const g={},r=[];
+  l.forEach(x=>{
+    const a=x.split(",");
+    if(a[0]==="TASK"){
+      if(!g[a[1]])g[a[1]]=[];
+      g[a[1]].push({n:a[2],v:+a[3]});
+    }
+    if(a[0]==="REWARD") r.push({n:a[2],v:+a[3]});
   });
-  return g;
+  return {g,r};
 }
 
-function _i(o) {
-  document.getElementById("gate").classList.add("x");
-  document.getElementById("barTop").classList.remove("x");
-  document.getElementById("main").classList.remove("x");
-  document.getElementById("barBottom").classList.remove("x");
+function init(o){
+  gate.classList.add("h");
+  top.classList.remove("h");
+  main.classList.remove("h");
+  bottom.classList.remove("h");
 
-  const m = document.getElementById("main");
-  m.innerHTML = "";
+  main.innerHTML="";
+  buildRewards(o);
 
-  for (const k in o.g) {
-    const s = document.createElement("div");
-    s.className = "grp";
-    s.innerHTML = `<h2>${k}</h2><div class="grid"></div>`;
-    o.g[k].forEach(z => {
-      const b = document.createElement("button");
-      b.textContent = z.n + " (+" + z.v + ")";
-      b.onclick = () => _a(z.v);
-      s.querySelector(".grid").appendChild(b);
-    });
-    m.appendChild(s);
+  for(const k in o.g){
+    const sec=document.createElement("div");
+    sec.className="grp";
+    sec.innerHTML=`<h2>${k}</h2><div class="grid"></div>`;
+    renderTasks(o,k,sec.querySelector(".grid"));
+    main.appendChild(sec);
   }
 
-  _u(o);
+  update(o);
+  setTimeout(()=>main.scrollIntoView({behavior:"smooth"}),300);
 }
 
-function _a(v) {
-  let o = _r();
-  o.s += v;
-  o.t += v;
+function renderTasks(o,k,grid){
+  grid.innerHTML="";
+  const done=o.c[today()]||[];
+  const list=o.g[k].map(t=>({
+    ...t,
+    d:done.includes(t.n)
+  })).sort((a,b)=>a.d-b.d);
 
-  if (o.s >= _M) {
-    o.l++;
-    o.s -= _M;
-  }
-
-  _w(o);
-  _u(o);
+  list.forEach(t=>{
+    const c=document.createElement("div");
+    c.className="card"+(t.d?" done":"");
+    c.innerHTML=`<div class="t">${t.d?"✔ ":""}${t.n}</div><div class="v">+${t.v}</div>`;
+    if(!t.d){
+      c.onclick=()=>complete(o,t.n,t.v);
+    }
+    grid.appendChild(c);
+  });
 }
 
-function _u(o) {
-  document.getElementById("s0").textContent = o.s;
-  document.getElementById("s1").textContent = o.l;
-  document.getElementById("meter").style.width =
-    Math.min(o.s / _M * 100, 100) + "%";
+function complete(o,n,v){
+  const d=today();
+  if(!o.c[d])o.c[d]=[];
+  if(o.c[d].includes(n))return;
+
+  o.c[d].push(n);
+  o.s+=v; o.t+=v;
+  if(o.s>=L){o.l++;o.s-=L}
+  save(o);
+  init(o);
 }
 
-function _t() {
-  document.getElementById("clk").textContent =
-    new Date().toLocaleString();
+function buildRewards(o){
+  const box=document.createElement("div");
+  box.id="rewardBar";
+  o.r.forEach(x=>{
+    const d=document.createElement("div");
+    d.className="reward"+(o.s>=x.v?" on":"");
+    d.textContent=x.n+" ("+x.v+")";
+    box.appendChild(d);
+  });
+  main.appendChild(box);
 }
 
-function sh() {
-  const u = location.href;
-  navigator.share ? navigator.share({ url: u }) : navigator.clipboard.writeText(u);
+function update(o){
+  s0.textContent=o.s;
+  s1.textContent=o.l;
+  meter.style.width=Math.min(o.s/L*100,100)+"%";
 }
 
-document.getElementById("f").addEventListener("change", e => {
-  const file = e.target.files[0];
-  const rd = new FileReader();
-  rd.onload = () => {
-    const g = _c(rd.result);
-    const o = { g, s: 0, t: 0, l: 0, d: _d() };
-    _w(o);
-    _i(o);
+function tick(){
+  clk.textContent=new Date().toLocaleString();
+}
+setInterval(tick,1000);tick();
+
+function sh(){
+  navigator.share?navigator.share({url:location.href}):navigator.clipboard.writeText(location.href);
+}
+
+f.onchange=e=>{
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const c=parseCSV(rd.result);
+    const o={...c,s:0,t:0,l:0,c:{},d:today()};
+    save(o);init(o);
   };
-  rd.readAsText(file);
-});
+  rd.readAsText(e.target.files[0]);
+};
 
-setInterval(_t, 1000);
-_t();
-
-let o = _r();
-if (o) {
-  if (o.d !== _d()) {
-    o.s = 0;
-    o.d = _d();
-    _w(o);
-  }
-  _i(o);
+let o=load();
+if(o){
+  if(o.d!==today()){o.c={};o.s=0;o.d=today();save(o)}
+  init(o);
 }
 </script>
 
